@@ -1,0 +1,57 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// type: "INTREDEND" | "UITTREDEND"
+// status: "CONCEPT" | "AFGEROND"
+// conditie: "UITSTEKEND" | "GOED" | "MATIG" | "SLECHT"
+
+model Report {
+  id           String       @id @default(uuid())
+  type         String
+  status       String       @default("CONCEPT")
+  adres        String
+  postcode     String?
+  gemeente     String?
+  huurderNaam  String?
+  verhuurderNaam String?
+  datum        DateTime     @default(now())
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  rooms        Room[]
+}
+
+model Room {
+  id        String    @id @default(uuid())
+  report    Report    @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  reportId  String
+  naam      String
+  volgorde  Int       @default(0)
+  elements  Element[]
+  createdAt DateTime  @default(now())
+}
+
+model Element {
+  id          String   @id @default(uuid())
+  room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  roomId      String
+  naam        String
+  conditie    String?
+  beschrijving String?
+  aiGegenereerd Boolean @default(false)
+  photos      Photo[]
+  createdAt   DateTime @default(now())
+}
+
+model Photo {
+  id        String   @id @default(uuid())
+  element   Element  @relation(fields: [elementId], references: [id], onDelete: Cascade)
+  elementId String
+  bestandspad String
+  createdAt DateTime @default(now())
+}
